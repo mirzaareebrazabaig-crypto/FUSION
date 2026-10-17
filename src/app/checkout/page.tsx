@@ -690,8 +690,8 @@ export default function CheckoutPage() {
 
                 <div className="flex justify-between items-center text-gray-600">
                   <div>
-                    <span>Rapido / Porter Parcel Charges</span>
-                    <span className="block text-[10px] text-gray-400">Doorstep delivery across Hyderabad</span>
+                    <span className="font-medium text-[#3B1F14]">Delivery</span>
+                    <span className="block text-[10px] text-gray-400">Rapido / Porter parcel charges</span>
                   </div>
                   <span className="font-semibold text-[#3B1F14]">₹{deliveryFee}</span>
                 </div>
