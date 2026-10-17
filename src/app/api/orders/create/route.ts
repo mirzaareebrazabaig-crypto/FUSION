@@ -45,13 +45,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Validate Serviceable Pincode
-    const pinCheck = await prisma.serviceablePincode.findUnique({
-      where: { pincode },
-    });
-    if (!pinCheck || !pinCheck.isActive) {
+    // 2. Validate Pincode format (Anywhere in city allowed via Rapido / Porter)
+    const cleanPin = pincode.trim().replace(/[^0-9]/g, "");
+    if (cleanPin.length !== 6) {
       return NextResponse.json(
-        { success: false, error: `We currently do not deliver to pincode ${pincode}.` },
+        { success: false, error: "Please enter a valid 6-digit postal PIN code." },
         { status: 400 }
       );
     }
@@ -120,12 +118,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 5. Calculate Delivery Fee
-    const freeDeliveryThreshold = 999;
-    let deliveryFee = calculatedSubtotal >= freeDeliveryThreshold ? 0 : 75;
-    if (pinCheck.deliveryFeeOverride !== null && pinCheck.deliveryFeeOverride !== undefined) {
-      deliveryFee = pinCheck.deliveryFeeOverride;
-    }
+    // 5. Calculate Delivery Fee (Flat Rapido / Porter parcel charges across Hyderabad)
+    const deliveryFee = 75;
 
     // 6. Calculate Coupon Discount
     let discount = 0;

@@ -99,28 +99,20 @@ export default function CheckoutPage() {
   // Validate pincode automatically when 6 digits are typed
   const checkPincode = async (codeToCheck: string) => {
     if (!/^\d{6}$/.test(codeToCheck)) {
-      setPincodeStatus({ checked: true, serviceable: false, error: "Enter a valid 6-digit PIN code." });
+      setPincodeStatus({ checked: false, serviceable: true });
       return;
     }
 
     try {
       const res = await fetch(`/api/pincodes/validate?pincode=${codeToCheck}`);
       const data = await res.json();
-      if (data.serviceable) {
-        setPincodeStatus({
-          checked: true,
-          serviceable: true,
-          areaName: data.areaName,
-        });
-      } else {
-        setPincodeStatus({
-          checked: true,
-          serviceable: false,
-          error: data.error || "Currently not serviceable.",
-        });
-      }
+      setPincodeStatus({
+        checked: true,
+        serviceable: true,
+        areaName: data.areaName || "Hyderabad & Suburbs",
+      });
     } catch {
-      setPincodeStatus({ checked: true, serviceable: true });
+      setPincodeStatus({ checked: true, serviceable: true, areaName: "Hyderabad & Suburbs" });
     }
   };
 
@@ -163,8 +155,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (pincodeStatus.checked && !pincodeStatus.serviceable) {
-      setErrorMessage("Please provide a serviceable Hyderabad PIN code.");
+    const cleanPin = pincode.trim().replace(/[^0-9]/g, "");
+    if (cleanPin.length !== 6) {
+      setErrorMessage("Please enter a valid 6-digit postal PIN code.");
       return;
     }
 
@@ -498,26 +491,11 @@ export default function CheckoutPage() {
 
                 {/* Live Pincode Verification Feedback */}
                 {pincodeStatus.checked && (
-                  <div
-                    className={`p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 ${
-                      pincodeStatus.serviceable
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                        : "bg-red-50 text-red-700 border border-red-200"
-                    }`}
-                  >
-                    {pincodeStatus.serviceable ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>
-                          Serviceable in <b>{pincodeStatus.areaName || "Hyderabad"}</b> ({pincode})
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle className="w-3.5 h-3.5 text-red-500" />
-                        <span>{pincodeStatus.error}</span>
-                      </>
-                    )}
+                  <div className="p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>
+                      Serviceable anywhere in <b>{pincodeStatus.areaName || "Hyderabad"}</b> ({pincode}) via Rapido / Porter
+                    </span>
                   </div>
                 )}
               </div>

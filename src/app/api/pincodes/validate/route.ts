@@ -17,19 +17,11 @@ export async function GET(req: NextRequest) {
       where: { pincode },
     });
 
-    if (!pinRecord || !pinRecord.isActive) {
-      return NextResponse.json({
-        serviceable: false,
-        error: `Currently, we do not deliver to PIN code ${pincode}. We deliver across Hyderabad metro areas (Banjara Hills, Jubilee Hills, Madhapur, Gachibowli, Secunderabad, etc.).`,
-      });
-    }
-
     return NextResponse.json({
       serviceable: true,
-      pincode: pinRecord.pincode,
-      areaName: pinRecord.areaName,
-      city: pinRecord.city,
-      deliveryFeeOverride: pinRecord.deliveryFeeOverride,
+      pincode,
+      areaName: pinRecord?.areaName || "Hyderabad Metro & Suburbs",
+      city: pinRecord?.city || "Hyderabad",
     });
   } catch (err: any) {
     console.error("Pincode validation error:", err);
