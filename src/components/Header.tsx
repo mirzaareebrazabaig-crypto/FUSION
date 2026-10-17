@@ -20,10 +20,8 @@ import { useCart } from "@/context/CartContext";
 
 export const Header: React.FC = () => {
   const pathname = usePathname();
-  const { cartCount, subtotal, freeDeliveryThreshold } = useCart();
+  const { cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const isFreeDeliveryEligible = subtotal >= freeDeliveryThreshold;
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -46,15 +44,7 @@ export const Header: React.FC = () => {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4F8B]" />
             </span>
             <span className="font-medium tracking-wide text-[#FFF6EC]">
-              {isFreeDeliveryEligible ? (
-                <span className="text-[#2EC4B6] font-bold">
-                  ✨ Congratulations! FREE Express Delivery applied on your order.
-                </span>
-              ) : (
-                <span>
-                  Festive Gifting Live • Fresh Daily Batches • Free Delivery over ₹{freeDeliveryThreshold}
-                </span>
-              )}
+              Festive Gifting Live • Fresh Daily Batches • Delivery via Rapido / Porter Parcel Charges
             </span>
           </div>
 

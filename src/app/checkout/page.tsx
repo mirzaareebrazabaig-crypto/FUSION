@@ -30,7 +30,7 @@ declare global {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, deliveryFee, appliedCoupon, total, boxMessage, clearCart } = useCart();
+  const { items, subtotal, deliveryFee, total, boxMessage, clearCart } = useCart();
 
   // Form State
   const [customerName, setCustomerName] = useState("");
@@ -198,7 +198,6 @@ export default function CheckoutPage() {
             variantName: i.variantName,
             quantity: i.quantity,
           })),
-          couponCode: appliedCoupon?.code,
         }),
       });
 
@@ -634,25 +633,12 @@ export default function CheckoutPage() {
                   <span className="font-semibold text-[#3B1F14]">₹{subtotal}</span>
                 </div>
 
-                {appliedCoupon && (
-                  <div className="flex justify-between text-emerald-600 font-semibold">
-                    <span>Discount ({appliedCoupon.code})</span>
-                    <span>-₹{appliedCoupon.discountAmount}</span>
-                  </div>
-                )}
-
                 <div className="flex justify-between items-center text-gray-600">
                   <div>
-                    <span>Delivery Fee</span>
-                    <span className="block text-[10px] text-gray-400">Via Rapido / Porter Parcel</span>
+                    <span>Rapido / Porter Parcel Charges</span>
+                    <span className="block text-[10px] text-gray-400">Doorstep delivery across Hyderabad</span>
                   </div>
-                  <span>
-                    {deliveryFee === 0 ? (
-                      <span className="text-emerald-600 font-bold">FREE</span>
-                    ) : (
-                      `₹${deliveryFee}`
-                    )}
-                  </span>
+                  <span className="font-semibold text-[#3B1F14]">₹{deliveryFee}</span>
                 </div>
 
                 <div className="border-t border-gray-200 pt-2 flex justify-between text-base font-extrabold text-[#3B1F14]">

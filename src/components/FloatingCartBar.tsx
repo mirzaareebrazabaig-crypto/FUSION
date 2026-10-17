@@ -3,12 +3,12 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, ArrowRight, Sparkles } from "lucide-react";
+import { ShoppingBag, ArrowRight, Truck } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 export const FloatingCartBar: React.FC = () => {
   const pathname = usePathname();
-  const { cartCount, total, subtotal, freeDeliveryThreshold, amountNeededForFreeDelivery } = useCart();
+  const { cartCount, total } = useCart();
 
   // Hide on checkout, cart, and confirmation pages
   if (
@@ -21,27 +21,19 @@ export const FloatingCartBar: React.FC = () => {
     return null;
   }
 
-  const isFreeDelivery = subtotal >= freeDeliveryThreshold;
-
   return (
     <div className="fixed bottom-[68px] md:bottom-6 left-3 right-3 md:left-auto md:right-8 md:w-96 z-40 animate-slide-up">
       <Link
         href="/cart"
         className="block bg-gradient-to-r from-[#24120B] via-[#3B1F14] to-[#24120B] text-white p-3.5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.35)] border border-[#F5B83D]/40 hover:border-[#F5B83D] transition-all active:scale-[0.98]"
       >
-        {/* Free Delivery Bar */}
+        {/* Rapido / Porter Notice Header */}
         <div className="mb-2 text-[10px] flex items-center justify-between text-[#FFF6EC]/90 border-b border-white/10 pb-1.5">
-          <div className="flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-[#F5B83D]" />
-            {isFreeDelivery ? (
-              <span className="text-[#2EC4B6] font-bold">Free Delivery applied!</span>
-            ) : (
-              <span>
-                Add <b className="text-[#F5B83D]">₹{amountNeededForFreeDelivery}</b> more for FREE delivery
-              </span>
-            )}
+          <div className="flex items-center gap-1.5 text-[#F5B83D]">
+            <Truck className="w-3.5 h-3.5" />
+            <span className="font-semibold">Delivery via Rapido / Porter Parcel</span>
           </div>
-          <span className="text-[9px] uppercase tracking-wider text-gray-300">Mumbai</span>
+          <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-bold">Hyderabad Metro</span>
         </div>
 
         {/* Main Bar Items & Price */}
@@ -60,7 +52,7 @@ export const FloatingCartBar: React.FC = () => {
               <div className="text-base font-extrabold text-[#FFF6EC]">
                 ₹{total}{" "}
                 <span className="text-[10px] font-normal text-[#F5B83D]">
-                  (Incl. Taxes)
+                  (Incl. Parcel Charges)
                 </span>
               </div>
             </div>

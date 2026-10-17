@@ -14,14 +14,6 @@ export interface CartItem {
   customMessage?: string | null;
 }
 
-export interface AppliedCoupon {
-  code: string;
-  discountType: "PERCENTAGE" | "FLAT";
-  discountValue: number;
-  discountAmount: number;
-  description?: string;
-}
-
 interface CartContextType {
   items: CartItem[];
   addItem: (product: {
@@ -38,11 +30,6 @@ interface CartContextType {
   cartCount: number;
   subtotal: number;
   deliveryFee: number;
-  freeDeliveryThreshold: number;
-  amountNeededForFreeDelivery: number;
-  appliedCoupon: AppliedCoupon | null;
-  applyCoupon: (couponCode: string) => Promise<{ success: boolean; message: string }>;
-  removeCoupon: () => void;
   total: number;
   boxMessage: string;
   setBoxMessage: (msg: string) => void;
@@ -51,12 +38,11 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const FREE_DELIVERY_THRESHOLD = 999;
-const STANDARD_DELIVERY_FEE = 75;
+// Standard Rapido / Porter parcel charges
+const RAPIDO_PARCEL_CHARGES = 75;
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [boxMessage, setBoxMessage] = useState<string>("");
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -66,10 +52,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem("chocofusion_cart");
       if (saved) {
         setItems(JSON.parse(saved));
-      }
-      const savedCoupon = localStorage.getItem("chocofusion_coupon");
-      if (savedCoupon) {
-        setAppliedCoupon(JSON.parse(savedCoupon));
       }
       const savedMsg = localStorage.getItem("chocofusion_box_message");
       if (savedMsg) {
@@ -86,36 +68,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isHydrated) return;
     try {
       localStorage.setItem("chocofusion_cart", JSON.stringify(items));
-      if (appliedCoupon) {
-        localStorage.setItem("chocofusion_coupon", JSON.stringify(appliedCoupon));
-      } else {
-        localStorage.removeItem("chocofusion_coupon");
-      }
       localStorage.setItem("chocofusion_box_message", boxMessage);
     } catch {
       // Ignore storage errors
     }
-  }, [items, appliedCoupon, boxMessage, isHydrated]);
+  }, [items, boxMessage, isHydrated]);
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const deliveryFee = subtotal === 0 || subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : STANDARD_DELIVERY_FEE;
-  const amountNeededForFreeDelivery = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
-
-  // Calculate discount based on subtotal
-  let discountAmount = 0;
-  if (appliedCoupon && subtotal > 0) {
-    if (appliedCoupon.discountType === "PERCENTAGE") {
-      discountAmount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
-    } else {
-      discountAmount = appliedCoupon.discountValue;
-    }
-    // Cap discount to subtotal
-    discountAmount = Math.min(discountAmount, subtotal);
-  }
-
-  const total = Math.max(0, subtotal - discountAmount + deliveryFee);
+  // Rapido / Porter parcel charges applied to all orders
+  const deliveryFee = subtotal === 0 ? 0 : RAPIDO_PARCEL_CHARGES;
+  const total = subtotal + deliveryFee;
 
   const getItemQuantity = (productId: string, variantName?: string | null) => {
     const item = items.find(
@@ -193,7 +157,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     setItems([]);
-    setAppliedCoupon(null);
     setBoxMessage("");
     try {
       localStorage.removeItem("chocofusion_cart");
@@ -202,59 +165,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // ignore
     }
-  };
-
-  const applyCoupon = async (code: string): Promise<{ success: boolean; message: string }> => {
-    const cleanCode = code.trim().toUpperCase();
-    if (!cleanCode) {
-      return { success: false, message: "Please enter a coupon code." };
-    }
-
-    try {
-      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(cleanCode)}&subtotal=${subtotal}`);
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        return { success: false, message: data.error || "Invalid coupon code." };
-      }
-
-      const couponData = data.coupon;
-      let calculatedDiscount = 0;
-      if (couponData.discountType === "PERCENTAGE") {
-        calculatedDiscount = Math.round((subtotal * couponData.discountValue) / 100);
-        if (couponData.maxDiscount && calculatedDiscount > couponData.maxDiscount) {
-          calculatedDiscount = couponData.maxDiscount;
-        }
-      } else {
-        calculatedDiscount = couponData.discountValue;
-      }
-
-      const newCoupon: AppliedCoupon = {
-        code: couponData.code,
-        discountType: couponData.discountType,
-        discountValue: couponData.discountValue,
-        discountAmount: calculatedDiscount,
-        description: couponData.description,
-      };
-
-      setAppliedCoupon(newCoupon);
-      return { success: true, message: `Coupon ${couponData.code} applied! Saved ₹${calculatedDiscount}` };
-    } catch {
-      // Fallback local coupon check if network is unavailable
-      if (cleanCode === "CHOCO10" && subtotal >= 499) {
-        const disc = Math.min(Math.round(subtotal * 0.1), 150);
-        setAppliedCoupon({ code: "CHOCO10", discountType: "PERCENTAGE", discountValue: 10, discountAmount: disc });
-        return { success: true, message: `Coupon CHOCO10 applied! Saved ₹${disc}` };
-      }
-      if (cleanCode === "FIRSTBITE" && subtotal >= 699) {
-        setAppliedCoupon({ code: "FIRSTBITE", discountType: "FLAT", discountValue: 100, discountAmount: 100 });
-        return { success: true, message: "Coupon FIRSTBITE applied! Saved ₹100" };
-      }
-      return { success: false, message: "Could not validate coupon. Please check code." };
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
   };
 
   return (
@@ -268,11 +178,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cartCount,
         subtotal,
         deliveryFee,
-        freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD,
-        amountNeededForFreeDelivery,
-        appliedCoupon,
-        applyCoupon,
-        removeCoupon,
         total,
         boxMessage,
         setBoxMessage,

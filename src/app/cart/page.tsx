@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -9,11 +9,8 @@ import {
   Plus,
   Minus,
   ArrowRight,
-  Tag,
-  Check,
-  Sparkles,
-  Info,
   Gift,
+  Truck,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
@@ -21,40 +18,13 @@ export default function CartPage() {
   const {
     items,
     updateQuantity,
-    removeItem,
     clearCart,
     subtotal,
     deliveryFee,
-    freeDeliveryThreshold,
-    amountNeededForFreeDelivery,
-    appliedCoupon,
-    applyCoupon,
-    removeCoupon,
     total,
     boxMessage,
     setBoxMessage,
   } = useCart();
-
-  const [couponInput, setCouponInput] = useState("");
-  const [couponFeedback, setCouponFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [isApplying, setIsApplying] = useState(false);
-
-  const handleApplyCoupon = async (codeToApply?: string) => {
-    const code = (codeToApply || couponInput).trim();
-    if (!code) return;
-
-    setIsApplying(true);
-    setCouponFeedback(null);
-    const result = await applyCoupon(code);
-    setIsApplying(false);
-
-    if (result.success) {
-      setCouponFeedback({ type: "success", text: result.message });
-      setCouponInput("");
-    } else {
-      setCouponFeedback({ type: "error", text: result.message });
-    }
-  };
 
   if (items.length === 0) {
     return (
@@ -77,8 +47,6 @@ export default function CartPage() {
     );
   }
 
-  const isFreeDelivery = subtotal >= freeDeliveryThreshold;
-
   return (
     <div className="min-h-screen bg-[#FFF6EC] pb-24 text-[#3B1F14] px-4 pt-4 max-w-2xl mx-auto">
       {/* Header */}
@@ -100,22 +68,14 @@ export default function CartPage() {
         </button>
       </div>
 
-      {/* Free Delivery Progress Notification */}
-      <div className="mt-3 p-3 bg-white rounded-2xl border border-[#F5B83D]/40 shadow-sm">
-        <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
-          <span className="flex items-center gap-1 text-[#3B1F14]">
-            <Sparkles className="w-3.5 h-3.5 text-[#F5B83D]" />
-            {isFreeDelivery ? "FREE Delivery Unlocked!" : `₹${amountNeededForFreeDelivery} more for Free Delivery`}
-          </span>
-          <span className="text-[10px] text-gray-500 font-bold">
-            {Math.min(100, Math.round((subtotal / freeDeliveryThreshold) * 100))}%
-          </span>
-        </div>
-        <div className="w-full bg-[#FAF3EB] rounded-full h-2 overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-[#FF8A3D] to-[#2EC4B6] transition-all duration-500 rounded-full"
-            style={{ width: `${Math.min(100, (subtotal / freeDeliveryThreshold) * 100)}%` }}
-          />
+      {/* Delivery Notice */}
+      <div className="mt-3 p-3 bg-white rounded-2xl border border-[#3B1F14]/10 shadow-sm flex items-center gap-2.5 text-xs text-[#3B1F14]">
+        <Truck className="w-4 h-4 text-[#FF4F8B] flex-shrink-0" />
+        <div>
+          <span className="font-bold">Doorstep Delivery Across Hyderabad</span>
+          <p className="text-[11px] text-gray-500">
+            Dispatched fresh via Rapido / Porter parcel service.
+          </p>
         </div>
       </div>
 
@@ -203,81 +163,6 @@ export default function CartPage() {
         </p>
       </div>
 
-      {/* Coupon Section */}
-      <div className="mt-4 bg-white p-3.5 rounded-2xl border border-[#3B1F14]/10 space-y-2.5">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-[#3B1F14] flex items-center gap-1.5">
-            <Tag className="w-4 h-4 text-[#F5B83D]" />
-            <span>Apply Coupon Code</span>
-          </span>
-          {appliedCoupon && (
-            <button
-              onClick={removeCoupon}
-              className="text-[11px] text-red-500 font-bold hover:underline"
-            >
-              Remove
-            </button>
-          )}
-        </div>
-
-        {appliedCoupon ? (
-          <div className="p-2.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between text-xs text-emerald-800">
-            <div className="flex items-center gap-1.5 font-bold">
-              <Check className="w-4 h-4 text-emerald-600" />
-              <span>&ldquo;{appliedCoupon.code}&rdquo; Applied</span>
-            </div>
-            <span className="font-extrabold text-emerald-700">
-              -₹{appliedCoupon.discountAmount}
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={couponInput}
-              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-              placeholder="Enter coupon code"
-              className="flex-1 text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#3B1F14] uppercase tracking-wider font-semibold"
-            />
-            <button
-              type="button"
-              disabled={isApplying || !couponInput.trim()}
-              onClick={() => handleApplyCoupon()}
-              className="px-4 py-2.5 bg-[#3B1F14] text-[#F5B83D] rounded-xl text-xs font-bold hover:bg-black disabled:opacity-50 transition-all"
-            >
-              {isApplying ? "Checking..." : "Apply"}
-            </button>
-          </div>
-        )}
-
-        {couponFeedback && (
-          <p
-            className={`text-[11px] font-medium ${
-              couponFeedback.type === "success" ? "text-emerald-600" : "text-red-500"
-            }`}
-          >
-            {couponFeedback.text}
-          </p>
-        )}
-
-        {/* Suggested Quick Coupons */}
-        {!appliedCoupon && (
-          <div className="pt-2 border-t border-gray-100 flex items-center gap-2 overflow-x-auto hide-scrollbar text-[11px]">
-            <span className="text-gray-400 text-[10px] font-medium flex-shrink-0">Try:</span>
-            {["CHOCO10", "FIRSTBITE", "FUSION20"].map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => handleApplyCoupon(c)}
-                className="flex-shrink-0 px-2 py-1 bg-[#FAF3EB] hover:bg-[#F5DEC0] border border-dashed border-[#F5B83D] text-[#3B1F14] font-bold rounded-lg transition-colors"
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Bill Details Breakdown */}
       <div className="mt-4 bg-white p-4 rounded-2xl border border-[#3B1F14]/10 space-y-2 text-xs">
         <h4 className="font-bold text-[#3B1F14] text-xs uppercase tracking-wider border-b border-gray-100 pb-2">
@@ -289,25 +174,12 @@ export default function CartPage() {
           <span className="font-semibold text-[#3B1F14]">₹{subtotal}</span>
         </div>
 
-        {appliedCoupon && (
-          <div className="flex justify-between text-emerald-600 font-semibold">
-            <span>Coupon Discount ({appliedCoupon.code})</span>
-            <span>-₹{appliedCoupon.discountAmount}</span>
-          </div>
-        )}
-
         <div className="flex justify-between items-center text-gray-600">
           <div>
-            <span>Delivery Fee</span>
-            <span className="block text-[10px] text-gray-400">Via Rapido / Porter Parcel</span>
+            <span>Rapido / Porter Parcel Charges</span>
+            <span className="block text-[10px] text-gray-400">Doorstep delivery across Hyderabad</span>
           </div>
-          <span>
-            {deliveryFee === 0 ? (
-              <span className="text-emerald-600 font-bold">FREE</span>
-            ) : (
-              `₹${deliveryFee}`
-            )}
-          </span>
+          <span className="font-semibold text-[#3B1F14]">₹{deliveryFee}</span>
         </div>
 
         <div className="border-t border-gray-200 pt-2 flex justify-between text-sm font-extrabold text-[#3B1F14]">
