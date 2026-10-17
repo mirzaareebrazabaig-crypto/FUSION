@@ -474,9 +474,9 @@ export default function HomePage() {
               </h5>
               <ul className="space-y-2 text-xs">
                 <li><Link href="/track" className="hover:text-white">Track Live Order</Link></li>
+                <li><Link href="/contact" className="hover:text-white">Contact Us &amp; Kitchen</Link></li>
                 <li><Link href="/cart" className="hover:text-white">View Shopping Bag</Link></li>
-                <li><Link href="/admin" className="hover:text-white">Chocolatier Portal</Link></li>
-                <li><a href="https://wa.me/919986120044" className="hover:text-white">Help &amp; Support</a></li>
+                <li><a href="https://wa.me/919986120044" className="hover:text-white">WhatsApp Concierge</a></li>
               </ul>
             </div>
 

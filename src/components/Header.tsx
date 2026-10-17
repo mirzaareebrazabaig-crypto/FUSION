@@ -31,6 +31,7 @@ export const Header: React.FC = () => {
     { label: "Viral Kunafa", href: "/menu?category=kunafa-collection" },
     { label: "Gift Hampers", href: "/menu?category=gift-hampers" },
     { label: "Track Order", href: "/track" },
+    { label: "Contact Us", href: "/contact" },
   ];
 
   return (
