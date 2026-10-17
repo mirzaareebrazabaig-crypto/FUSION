@@ -118,8 +118,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 5. Calculate Delivery Fee (Flat Rapido / Porter parcel charges across Hyderabad)
-    const deliveryFee = 75;
+    // 5. Delivery Fee: ₹0 in product payment (Rapido / Porter charges at actuals on delivery)
+    const deliveryFee = 0;
 
     // 6. Calculate Coupon Discount
     let discount = 0;

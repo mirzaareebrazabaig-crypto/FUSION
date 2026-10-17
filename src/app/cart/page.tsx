@@ -179,7 +179,7 @@ export default function CartPage() {
             <span className="font-medium text-[#3B1F14]">Delivery</span>
             <span className="block text-[10px] text-gray-400">Rapido / Porter parcel charges</span>
           </div>
-          <span className="font-semibold text-[#3B1F14]">₹{deliveryFee}</span>
+          <span className="font-semibold text-xs text-[#3B1F14]">At Actuals</span>
         </div>
 
         <div className="border-t border-gray-200 pt-2 flex justify-between text-sm font-extrabold text-[#3B1F14]">

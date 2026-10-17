@@ -52,7 +52,7 @@ export const FloatingCartBar: React.FC = () => {
               <div className="text-base font-extrabold text-[#FFF6EC]">
                 ₹{total}{" "}
                 <span className="text-[10px] font-normal text-[#F5B83D]">
-                  (Incl. Parcel Charges)
+                  + Rapido / Porter charges
                 </span>
               </div>
             </div>

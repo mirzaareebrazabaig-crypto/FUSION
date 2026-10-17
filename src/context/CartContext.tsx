@@ -77,9 +77,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Rapido / Porter parcel charges applied to all orders
-  const deliveryFee = subtotal === 0 ? 0 : RAPIDO_PARCEL_CHARGES;
-  const total = subtotal + deliveryFee;
+  // Delivery charges are at actuals via Rapido / Porter (paid on delivery)
+  const deliveryFee = 0;
+  const total = subtotal;
 
   const getItemQuantity = (productId: string, variantName?: string | null) => {
     const item = items.find(

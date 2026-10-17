@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { PhoneLoginModal } from "@/components/PhoneLoginModal";
 
 export const Header: React.FC = () => {
   const pathname = usePathname();
@@ -120,6 +121,9 @@ export const Header: React.FC = () => {
 
           {/* Action CTAs */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Phone Login Button */}
+            <PhoneLoginModal />
+
             {/* WhatsApp VIP Ordering CTA (Desktop & Mobile) */}
             <a
               href="https://wa.me/919986120044?text=Hi%20ChocoFusion%2C%20I%20would%20like%20to%20order%20chocolates!"
