@@ -16,9 +16,12 @@ import {
   CreditCard,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   ArrowRight,
   Sparkles,
   ShoppingBag,
+  X,
+  FileText,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
@@ -106,6 +109,8 @@ export default function CheckoutPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [createdOrderData, setCreatedOrderData] = useState<any | null>(null);
   const [paymentFailedState, setPaymentFailedState] = useState<boolean>(false);
+  const [showTermsModal, setShowTermsModal] = useState<boolean>(false);
+  const [hasAgreedTerms, setHasAgreedTerms] = useState<boolean>(false);
 
   // Calculate minimum delivery date (24h lead time from now)
   useEffect(() => {
@@ -212,7 +217,19 @@ export default function CheckoutPage() {
       return;
     }
 
+    // Require customer to review and accept the T&C (Payment when prepared before dispatch, no cancel/refund)
+    if (!hasAgreedTerms) {
+      setShowTermsModal(true);
+      return;
+    }
+
+    await executeOrderCreation(cleanPhone);
+  };
+
+  const executeOrderCreation = async (phoneToUse?: string) => {
+    const cleanPhone = phoneToUse || customerPhone.replace(/[^0-9]/g, "");
     setIsSubmitting(true);
+    setErrorMessage(null);
 
     try {
       // 1. Create Order on Backend
@@ -702,15 +719,32 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Security & Payment Notice */}
-              <div className="p-3 bg-[#FAF3EB] rounded-xl border border-[#3B1F14]/10 text-[11px] text-[#3B1F14]/80 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-[#3B1F14]">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Razorpay Safe & Encrypted Checkout</span>
+              {/* Terms & Conditions Notice Box */}
+              <div className="p-3.5 bg-amber-50/80 rounded-xl border border-amber-300 text-xs text-[#3B1F14] space-y-2">
+                <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>Important Order Terms & Policy</span>
                 </div>
-                <p className="text-[10px] text-gray-500">
-                  Orders are confirmed upon successful online payment. Instant notifications will be sent to your WhatsApp and the Chocolatier.
-                </p>
+                <ul className="text-[11px] text-amber-950 space-y-1 list-disc list-inside leading-relaxed pl-1">
+                  <li>
+                    <b>Payment Timing:</b> Payment must be completed once your order has been handcrafted & prepared in the kitchen, and strictly <b>before parcel dispatch</b>.
+                  </li>
+                  <li>
+                    <b>No Cancellations & No Refunds:</b> Since all chocolates are perishable and made to order with fresh roasted nuts, cancellations and refunds are strictly not permitted once booked.
+                  </li>
+                  <li>
+                    <b>Delivery Charges:</b> Doorstep delivery via Rapido / Porter parcel service paid at actuals upon arrival.
+                  </li>
+                </ul>
+                <label className="flex items-start gap-2 pt-1.5 cursor-pointer text-[11px] font-semibold text-[#3B1F14] select-none border-t border-amber-200">
+                  <input
+                    type="checkbox"
+                    checked={hasAgreedTerms}
+                    onChange={(e) => setHasAgreedTerms(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 rounded text-[#FF4F8B] focus:ring-[#FF4F8B] accent-[#FF4F8B]"
+                  />
+                  <span>I understand & agree to the Payment and No-Refund / No-Cancellation policy.</span>
+                </label>
               </div>
 
               {/* Submit / Pay Button */}
@@ -721,13 +755,82 @@ export default function CheckoutPage() {
               >
                 <CreditCard className="w-4 h-4" />
                 <span>
-                  {isSubmitting ? "Initiating Razorpay..." : `Pay ₹${total} & Confirm Order`}
+                  {isSubmitting ? "Confirming Order..." : `Proceed to Order (₹${total})`}
                 </span>
               </button>
             </div>
           </div>
         </div>
       </form>
+
+      {/* T&C Confirmation Modal (if button clicked before checkbox) */}
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#FFF6EC] text-[#3B1F14] w-full max-w-md rounded-3xl p-5 sm:p-6 shadow-2xl border border-[#3B1F14]/15 space-y-4 relative">
+            <button
+              onClick={() => setShowTermsModal(false)}
+              className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-black rounded-full hover:bg-black/5"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2.5 text-amber-700">
+              <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-amber-700" />
+              </div>
+              <div>
+                <h3 className="text-base font-black font-serif text-[#3B1F14]">
+                  Please Accept Terms & Conditions
+                </h3>
+                <p className="text-[11px] text-gray-500">ChocoFusion Artisanal Kitchen Policy</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-white rounded-2xl border border-gray-200 text-xs space-y-2.5 text-gray-700 leading-relaxed">
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-[#FF4F8B]">•</span>
+                <span>
+                  <b>Payment Policy:</b> Every batch is made fresh. Payment has to be done when your order has been prepared and <b>before final dispatch</b>.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-[#FF4F8B]">•</span>
+                <span>
+                  <b>No Cancellations & No Refunds:</b> Due to perishable gourmet ingredients, orders cannot be cancelled or refunded after placement.
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-bold text-[#FF4F8B]">•</span>
+                <span>
+                  <b>Delivery Charges:</b> Doorstep parcel service via Rapido / Porter at actuals.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setHasAgreedTerms(true);
+                  setShowTermsModal(false);
+                  executeOrderCreation();
+                }}
+                className="flex-1 py-3 bg-[#3B1F14] hover:bg-black text-[#F5B83D] rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>I Agree & Proceed</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowTermsModal(false)}
+                className="px-4 py-3 border border-gray-300 text-gray-600 rounded-xl text-xs font-semibold hover:bg-gray-100"
+              >
+                Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,30 +8,36 @@ export async function GET(req: NextRequest) {
     const orderNumber = searchParams.get("order")?.trim().toUpperCase();
     const phoneInput = searchParams.get("phone")?.replace(/[^0-9]/g, "");
 
-    const buildSteps = (status: string) => [
+    const buildSteps = (orderStatus: string, paymentStatus: string) => [
       {
         key: "CONFIRMED",
-        title: "Payment Confirmed",
-        desc: "Order received & assigned to kitchen",
+        title: "Order Booked",
+        desc: "Order received & assigned to Chocolatier kitchen",
         done: true,
       },
       {
         key: "PREPARING",
-        title: "Preparing in Kitchen",
-        desc: "Roasting fresh nuts & hand-crafting chocolates",
-        done: ["PREPARING", "OUT_FOR_DELIVERY", "DELIVERED"].includes(status),
+        title: "Fresh Handcrafting in Kitchen",
+        desc: "Freshly roasting nuts & tempering artisanal chocolate",
+        done: ["PREPARING", "OUT_FOR_DELIVERY", "DELIVERED"].includes(orderStatus),
+      },
+      {
+        key: "PAYMENT_BEFORE_DISPATCH",
+        title: "Payment Done Before Dispatch",
+        desc: "Payment completed upon batch readiness before dispatch",
+        done: paymentStatus === "PAID" || ["OUT_FOR_DELIVERY", "DELIVERED"].includes(orderStatus),
       },
       {
         key: "OUT_FOR_DELIVERY",
-        title: "Out for Delivery",
-        desc: "Dispatched in temperature-safe packaging via Rapido / Porter",
-        done: ["OUT_FOR_DELIVERY", "DELIVERED"].includes(status),
+        title: "Dispatched via Rapido / Porter",
+        desc: "Dispatched in temperature-safe luxury packaging",
+        done: ["OUT_FOR_DELIVERY", "DELIVERED"].includes(orderStatus),
       },
       {
         key: "DELIVERED",
         title: "Delivered",
         desc: "Handed over to customer",
-        done: status === "DELIVERED",
+        done: orderStatus === "DELIVERED",
       },
     ];
 
@@ -75,7 +81,7 @@ export async function GET(req: NextRequest) {
         total: ord.total,
         createdAt: ord.createdAt,
         items: ord.items,
-        steps: buildSteps(ord.orderStatus),
+        steps: buildSteps(ord.orderStatus, ord.paymentStatus),
       }));
 
       // Return both latest order (for direct tracking) and list of all orders
@@ -145,7 +151,7 @@ export async function GET(req: NextRequest) {
         total: order.total,
         createdAt: order.createdAt,
         items: order.items,
-        steps: buildSteps(order.orderStatus),
+        steps: buildSteps(order.orderStatus, order.paymentStatus),
       },
       orders: [order],
     });

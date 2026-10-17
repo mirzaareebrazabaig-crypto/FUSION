@@ -15,12 +15,11 @@ export const BottomNav: React.FC = () => {
     { label: "Menu", href: "/menu", icon: UtensilsCrossed },
     { label: "Cart", href: "/cart", icon: ShoppingBag, badge: cartCount },
     { label: "Track", href: "/track", icon: Truck },
-    { label: "Admin", href: "/admin", icon: ShieldCheck },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#24120B]/98 backdrop-blur-lg border-t border-[#F5B83D]/30 shadow-[0_-4px_20px_rgba(0,0,0,0.3)] pb-safe">
-      <div className="grid grid-cols-5 h-16">
+      <div className="grid grid-cols-4 h-16">
         {navItems.map((item) => {
           const isActive =
             item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);

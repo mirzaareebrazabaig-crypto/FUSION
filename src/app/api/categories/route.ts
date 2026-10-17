@@ -1,23 +1,28 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { STATIC_CATEGORIES } from "@/lib/productsData";
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      orderBy: { sortOrder: "asc" },
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-    });
+    let categories: any[] = [];
+    try {
+      categories = await prisma.category.findMany({
+        orderBy: { sortOrder: "asc" },
+      });
+    } catch (dbErr) {
+      console.warn("DB categories fallback:", dbErr);
+    }
+
+    if (!categories || categories.length === 0) {
+      categories = STATIC_CATEGORIES;
+    }
 
     return NextResponse.json({ success: true, categories });
   } catch (err: any) {
-    console.error("Categories API error:", err);
+    console.error("Categories fetch error:", err);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch categories" },
-      { status: 500 }
+      { success: true, categories: STATIC_CATEGORIES },
+      { status: 200 }
     );
   }
 }
