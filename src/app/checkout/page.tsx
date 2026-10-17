@@ -97,10 +97,18 @@ export default function CheckoutPage() {
     }
   }, [customerPhone]);
 
+  const FALLBACK_SLOTS = [
+    { id: "slot-1", label: "10:00 AM - 12:00 PM (Morning Slot)", isFull: false },
+    { id: "slot-2", label: "12:00 PM - 02:00 PM (Afternoon Slot)", isFull: false },
+    { id: "slot-3", label: "02:00 PM - 04:00 PM (Mid-Day Slot)", isFull: false },
+    { id: "slot-4", label: "04:00 PM - 06:00 PM (Evening Slot)", isFull: false },
+    { id: "slot-5", label: "06:00 PM - 08:00 PM (Night Slot)", isFull: false },
+  ];
+
   // Date and Time Slot
   const [deliveryDate, setDeliveryDate] = useState("");
-  const [deliverySlot, setDeliverySlot] = useState("");
-  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+  const [deliverySlot, setDeliverySlot] = useState("10:00 AM - 12:00 PM (Morning Slot)");
+  const [availableSlots, setAvailableSlots] = useState<any[]>(FALLBACK_SLOTS);
   const [blockedDates, setBlockedDates] = useState<string[]>([]);
   const [minDateString, setMinDateString] = useState("");
 
@@ -131,10 +139,9 @@ export default function CheckoutPage() {
       try {
         const res = await fetch(`/api/delivery-slots?date=${deliveryDate}`);
         const data = await res.json();
-        if (data.success) {
-          setAvailableSlots(data.slots || []);
+        if (data.success && data.slots && data.slots.length > 0) {
+          setAvailableSlots(data.slots);
           setBlockedDates(data.blockedDates || []);
-          // Set first available slot
           const firstAvailable = data.slots.find((s: any) => !s.isFull);
           if (firstAvailable) {
             setDeliverySlot(firstAvailable.label);
