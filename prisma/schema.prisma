@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id            String      @id @default(cuid())
+  name          String
+  slug          String      @unique
+  shortDesc     String
+  description   String
+  ingredients   String
+  price         Float
+  originalPrice Float?
+  weight        String      @default("250g")
+  imageUrl      String
+  isVeg         Boolean     @default(true)
+  isEggless     Boolean     @default(true)
+  inStock       Boolean     @default(true)
+  featured      Boolean     @default(false)
+  bestSeller    Boolean     @default(false)
+  rating        Float       @default(4.9)
+  reviewCount   Int         @default(42)
+  variants      String?     // JSON array of variant options
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Order {
+  id                 String            @id @default(cuid())
+  orderNumber        String            @unique
+  customerName       String
+  customerPhone      String
+  customerEmail      String?
+  houseFlat          String
+  streetArea         String
+  landmark           String?
+  city               String            @default("Mumbai")
+  pincode            String
+  deliveryDate       String            // YYYY-MM-DD
+  deliverySlot       String            // e.g. "10:00 AM - 12:00 PM"
+  boxMessage         String?
+  specialNotes       String?
+  subtotal           Float
+  deliveryFee        Float             @default(0)
+  discount           Float             @default(0)
+  couponCode         String?
+  tax                Float             @default(0)
+  total              Float
+  paymentStatus      String            @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
+  orderStatus        String            @default("CONFIRMED") // CONFIRMED, PREPARING, OUT_FOR_DELIVERY, DELIVERED, CANCELLED
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  razorpaySignature  String?
+  items              OrderItem[]
+  notificationLogs   NotificationLog[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  productName String
+  variantName String?
+  price       Float
+  quantity    Int
+  total       Float
+}
+
+model DeliverySlot {
+  id              String   @id @default(cuid())
+  startTime       String   // "10:00"
+  endTime         String   // "12:00"
+  label           String   // "10:00 AM - 12:00 PM"
+  maxOrdersPerDay Int      @default(25)
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+}
+
+model ServiceablePincode {
+  id                   String   @id @default(cuid())
+  pincode              String   @unique
+  areaName             String
+  city                 String   @default("Mumbai")
+  deliveryFeeOverride  Float?
+  isActive             Boolean  @default(true)
+}
+
+model BlockedDate {
+  id     String @id @default(cuid())
+  date   String @unique // YYYY-MM-DD
+  reason String
+}
+
+model Coupon {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  discountType  String    @default("PERCENTAGE") // PERCENTAGE, FLAT
+  discountValue Float
+  minOrderValue Float     @default(0)
+  maxDiscount   Float?
+  isActive      Boolean   @default(true)
+  description   String?
+  expiryDate    DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model StoreSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model NotificationLog {
+  id             String   @id @default(cuid())
+  orderId        String?
+  order          Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  channel        String   // "WHATSAPP", "SMS"
+  recipientType  String   // "OWNER", "CUSTOMER"
+  recipientPhone String
+  status         String   // "SUCCESS", "FAILED", "SIMULATED"
+  message        String
+  responseLog    String?
+  createdAt      DateTime @default(now())
+}

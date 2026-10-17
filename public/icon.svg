@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="cocoaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B1F14"/>
+      <stop offset="100%" stop-color="#22120C"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD166"/>
+      <stop offset="100%" stop-color="#F5B83D"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Rounded Shield -->
+  <rect width="512" height="512" rx="128" fill="url(#cocoaGrad)"/>
+  
+  <!-- Chocolate bar shape -->
+  <rect x="96" y="110" width="320" height="290" rx="36" fill="#542D1E" stroke="#FF4F8B" stroke-width="8"/>
+  
+  <!-- Chocolate grids -->
+  <rect x="126" y="140" width="120" height="105" rx="16" fill="#3B1F14"/>
+  <rect x="266" y="140" width="120" height="105" rx="16" fill="#3B1F14"/>
+  <rect x="126" y="265" width="120" height="105" rx="16" fill="#3B1F14"/>
+  <rect x="266" y="265" width="120" height="105" rx="16" fill="#3B1F14"/>
+  
+  <!-- Golden Truffle Drizzle -->
+  <path d="M 120 180 Q 256 120 390 190 T 260 380" fill="none" stroke="url(#goldGrad)" stroke-width="14" stroke-linecap="round"/>
+  
+  <!-- Brand Initials / Heart -->
+  <circle cx="370" cy="130" r="32" fill="#FF4F8B"/>
+  <path d="M 370 144 C 362 136 352 126 358 118 C 363 112 370 114 370 120 C 370 114 377 112 382 118 C 388 126 378 136 370 144 Z" fill="#FFF6EC"/>
+</svg>

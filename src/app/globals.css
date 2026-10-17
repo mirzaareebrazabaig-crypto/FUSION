@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFF6EC;
+  --foreground: #3B1F14;
+  --cocoa-dark: #24120B;
+  --cocoa-base: #3B1F14;
+  --accent-pink: #FF4F8B;
+  --accent-orange: #FF8A3D;
+  --accent-gold: #F5B83D;
+  --accent-mint: #2EC4B6;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #FFF6EC;
+  color: #3B1F14;
+  min-height: 100vh;
+  padding-bottom: 72px; /* Space for sticky bottom navigation on phones */
+}
+
+@media (min-width: 768px) {
+  body {
+    padding-bottom: 0px;
+  }
+}
+
+/* Custom scrollbar for horizontal categories */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Tap-friendly target minimum for phone touch */
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #F3E5D4 25%, #FFF0DE 50%, #F3E5D4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
