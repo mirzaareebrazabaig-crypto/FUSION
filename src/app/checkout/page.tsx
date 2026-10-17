@@ -47,6 +47,52 @@ export default function CheckoutPage() {
     areaName?: string;
     error?: string;
   }>({ checked: false, serviceable: true });
+  const [isAutoFilled, setIsAutoFilled] = useState(false);
+
+  // Auto-fill from localStorage on initial load
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("chocofusion_saved_customer");
+      if (saved) {
+        const p = JSON.parse(saved);
+        if (p.phone) setCustomerPhone(p.phone);
+        if (p.name) setCustomerName(p.name);
+        if (p.email) setCustomerEmail(p.email);
+        if (p.houseFlat) setHouseFlat(p.houseFlat);
+        if (p.streetArea) setStreetArea(p.streetArea);
+        if (p.landmark) setLandmark(p.landmark);
+        if (p.city) setCity(p.city);
+        if (p.pincode) setPincode(p.pincode);
+        setIsAutoFilled(true);
+      }
+    } catch {}
+  }, []);
+
+  // When 10 digits are typed, check backend for past saved address if not already filled
+  useEffect(() => {
+    const clean = customerPhone.replace(/[^0-9]/g, "");
+    if (clean.length === 10 && !houseFlat) {
+      fetch(`/api/customer/profile?phone=${clean}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.exists && data.profile) {
+            const p = data.profile;
+            if (p.name && !customerName) setCustomerName(p.name);
+            if (p.email && !customerEmail) setCustomerEmail(p.email);
+            if (p.houseFlat) setHouseFlat(p.houseFlat);
+            if (p.streetArea) setStreetArea(p.streetArea);
+            if (p.landmark) setLandmark(p.landmark);
+            if (p.city) setCity(p.city);
+            if (p.pincode) setPincode(p.pincode);
+            setIsAutoFilled(true);
+            try {
+              localStorage.setItem("chocofusion_saved_customer", JSON.stringify(p));
+            } catch {}
+          }
+        })
+        .catch(() => {});
+    }
+  }, [customerPhone]);
 
   // Date and Time Slot
   const [deliveryDate, setDeliveryDate] = useState("");
@@ -291,6 +337,23 @@ export default function CheckoutPage() {
 
       const verifyData = await verifyRes.json();
       if (verifyRes.ok && verifyData.success) {
+        // Save customer details and address in browser for 1-click repeat orders
+        try {
+          localStorage.setItem(
+            "chocofusion_saved_customer",
+            JSON.stringify({
+              name: customerName,
+              phone: customerPhone,
+              email: customerEmail,
+              houseFlat,
+              streetArea,
+              landmark,
+              city,
+              pincode,
+            })
+          );
+        } catch {}
+
         clearCart();
         router.push(`/order-confirmed?orderId=${payload.orderId}`);
       } else {
@@ -350,12 +413,43 @@ export default function CheckoutPage() {
                 <span className="w-5 h-5 rounded-full bg-[#3B1F14] text-[#F5B83D] text-xs font-bold flex items-center justify-center">
                   1
                 </span>
-                <h3 className="font-bold text-xs uppercase tracking-wider text-[#3B1F14]">
-                  Contact Information
-                </h3>
+                <div className="flex items-center justify-between flex-1">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-[#3B1F14]">
+                    Contact Information
+                  </h3>
+                  {isAutoFilled && (
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <span>Address Auto-filled</span>
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2.5">
+                <div>
+                  <label className="text-xs font-bold text-[#3B1F14] block mb-1">
+                    Mobile Number * (Auto-loads saved address)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-xs text-gray-400 font-bold">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      required
+                      maxLength={10}
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9]/g, ""))}
+                      placeholder="9820012345"
+                      className="w-full text-xs pl-10 pr-2.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FF4F8B] font-bold text-[#3B1F14]"
+                    />
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    Enter your 10-digit number. If you&apos;ve ordered before, your address loads instantly.
+                  </p>
+                </div>
+
                 <div>
                   <label className="text-xs font-bold text-[#3B1F14] block mb-1">
                     Full Name *
@@ -370,39 +464,17 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="text-xs font-bold text-[#3B1F14] block mb-1">
-                      10-Digit Mobile Number *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        required
-                        maxLength={10}
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value.replace(/[^0-9]/g, ""))}
-                        placeholder="9820012345"
-                        className="w-full text-xs pl-10 pr-2.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FF4F8B] font-semibold"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-[#3B1F14] block mb-1">
-                      Email Address (Optional)
-                    </label>
-                    <input
-                      type="email"
-                      value={customerEmail}
-                      onChange={(e) => setCustomerEmail(e.target.value)}
-                      placeholder="name@example.com"
-                      className="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FF4F8B]"
-                    />
-                  </div>
+                <div>
+                  <label className="text-xs font-bold text-[#3B1F14] block mb-1">
+                    Email Address (Optional)
+                  </label>
+                  <input
+                    type="email"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FF4F8B]"
+                  />
                 </div>
               </div>
             </div>
