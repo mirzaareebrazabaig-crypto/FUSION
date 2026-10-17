@@ -70,12 +70,17 @@ function MenuContent() {
                 Luxury Chocolate Menu
               </h1>
               <p className="text-[11px] text-[#F7EAD7]/80">
-                Freshly crafted with California roasted nuts & Belgian cocoa
+                Freshly crafted with roasted nuts &amp; Belgian cocoa • Standard portions 100g (or Each as noted) • Delivering across Hyderabad
               </p>
             </div>
-            <span className="text-[10px] font-bold bg-[#FF4F8B] text-white px-2 py-0.5 rounded-full">
-              100% Veg
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold bg-[#F5B83D] text-[#1A0C06] px-2 py-0.5 rounded-full">
+                Hyderabad
+              </span>
+              <span className="text-[10px] font-bold bg-[#FF4F8B] text-white px-2 py-0.5 rounded-full">
+                100% Veg
+              </span>
+            </div>
           </div>
 
           {/* Search Input Bar */}
