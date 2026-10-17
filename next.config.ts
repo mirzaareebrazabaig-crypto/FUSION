@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
-    DATABASE_URL: process.env.DATABASE_URL || "file:./dev.db",
     ADMIN_SECRET_KEY: process.env.ADMIN_SECRET_KEY || "hayat2808",
   },
 };
