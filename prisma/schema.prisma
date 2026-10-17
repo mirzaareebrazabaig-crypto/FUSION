@@ -146,3 +146,18 @@ model NotificationLog {
   responseLog    String?
   createdAt      DateTime @default(now())
 }
+
+model Customer {
+  id         String   @id @default(cuid())
+  phone      String   @unique
+  name       String?
+  email      String?
+  houseFlat  String?
+  streetArea String?
+  landmark   String?
+  city       String   @default("Hyderabad")
+  pincode    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+

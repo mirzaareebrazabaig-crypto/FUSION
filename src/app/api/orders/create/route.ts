@@ -153,7 +153,35 @@ export async function POST(req: NextRequest) {
     const datePrefix = new Date().toISOString().slice(2, 7).replace("-", "");
     const orderNumber = `CF-${datePrefix}-${randomSuffix}`;
 
-    // 8. Create Order in DB (paymentStatus: PENDING)
+    // 8. Upsert customer address in backend DB for permanent profile storage
+    try {
+      await prisma.customer.upsert({
+        where: { phone: cleanPhone },
+        update: {
+          name: customerName.trim(),
+          email: customerEmail?.trim() || undefined,
+          houseFlat: houseFlat.trim(),
+          streetArea: streetArea.trim(),
+          landmark: landmark?.trim() || undefined,
+          city: city.trim(),
+          pincode: pincode.trim(),
+        },
+        create: {
+          phone: cleanPhone,
+          name: customerName.trim(),
+          email: customerEmail?.trim() || null,
+          houseFlat: houseFlat.trim(),
+          streetArea: streetArea.trim(),
+          landmark: landmark?.trim() || null,
+          city: city.trim(),
+          pincode: pincode.trim(),
+        },
+      });
+    } catch (custErr) {
+      console.warn("Could not upsert customer record:", custErr);
+    }
+
+    // 9. Create Order in DB (paymentStatus: PENDING)
     const order = await prisma.order.create({
       data: {
         orderNumber,

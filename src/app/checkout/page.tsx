@@ -555,7 +555,7 @@ export default function CheckoutPage() {
                       maxLength={6}
                       value={pincode}
                       onChange={(e) => setPincode(e.target.value.replace(/[^0-9]/g, ""))}
-                      placeholder="400050"
+                      placeholder="500034"
                       className="w-full text-xs p-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FF4F8B] font-bold"
                     />
                   </div>
@@ -570,6 +570,11 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                 )}
+
+                <div className="pt-1 text-[11px] text-gray-500 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#2EC4B6]" />
+                  <span>Your address will be automatically saved in our database for effortless future orders.</span>
+                </div>
               </div>
             </div>
 
