@@ -25,6 +25,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import OrderTable from '@/components/admin/OrderTable';
+import AdminLayout from '@/components/admin/AdminLayout';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -321,8 +322,8 @@ export default function AdminPage() {
 
   // 2. MAIN ADMIN DASHBOARD
   return (
-    <div className="min-h-screen bg-[#FFF6EC] pb-24 text-[#3B1F14] px-3 sm:px-6 pt-4 max-w-6xl mx-auto">
-      {/* Top Admin Header */}
+    <AdminLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+      
       <div className="bg-[#3B1F14] text-[#FFF6EC] p-4 rounded-3xl shadow-md border-b border-[#F5B83D]/30 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="relative w-11 h-11 rounded-full overflow-hidden border border-[#F5B83D]">
