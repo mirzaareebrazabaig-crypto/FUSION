@@ -24,6 +24,7 @@ import {
   Sparkles,
   ExternalLink,
 } from "lucide-react";
+import OrderTable from '@/components/admin/OrderTable';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -470,120 +471,14 @@ export default function AdminPage() {
 
           {/* Orders Cards / Table */}
           {loadingOrders ? (
-            <div className="p-8 text-center text-xs text-gray-500">Loading orders...</div>
-          ) : orders.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 text-center text-xs text-gray-500 border border-[#3B1F14]/10">
-              No orders found matching the filter.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {orders.map((o) => (
-                <div
-                  key={o.id}
-                  className="bg-white rounded-2xl p-4 border border-[#3B1F14]/10 shadow-sm space-y-3"
-                >
-                  {/* Top Bar */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-black text-sm text-[#3B1F14]">
-                        {o.orderNumber}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          o.paymentStatus === "PAID"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-amber-100 text-amber-800"
-                        }`}
-                      >
-                        {o.paymentStatus}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {/* Change Status Dropdown */}
-                      <span className="text-[11px] text-gray-400 font-medium">Status:</span>
-                      <select
-                        value={o.orderStatus}
-                        onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value)}
-                        className="text-xs font-bold p-1.5 rounded-lg border border-gray-300 bg-white"
-                      >
-                        <option value="CONFIRMED">CONFIRMED</option>
-                        <option value="PREPARING">PREPARING</option>
-                        <option value="OUT_FOR_DELIVERY">OUT FOR DELIVERY</option>
-                        <option value="DELIVERED">DELIVERED</option>
-                        <option value="CANCELLED">CANCELLED</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Customer, Date & Address */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-gray-700">
-                    <div>
-                      <span className="text-[10px] text-gray-400 font-bold block">
-                        Customer
-                      </span>
-                      <span className="font-bold text-[#3B1F14]">{o.customerName}</span>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-gray-500">{o.customerPhone}</span>
-                        <a
-                          href={`https://wa.me/91${o.customerPhone}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#2EC4B6] hover:opacity-80"
-                          title="WhatsApp Customer"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5 fill-current" />
-                        </a>
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-gray-400 font-bold block">
-                        Scheduled Slot
-                      </span>
-                      <span className="font-bold text-[#3B1F14]">{o.deliveryDate}</span>
-                      <span className="text-gray-500 block text-[11px]">{o.deliverySlot}</span>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-gray-400 font-bold block">
-                        Delivery Address
-                      </span>
-                      <span className="text-gray-600 line-clamp-2">
-                        {o.houseFlat}, {o.streetArea}, {o.city} - {o.pincode}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Items and Box Note */}
-                  <div className="bg-[#FAF3EB] p-2.5 rounded-xl text-xs space-y-1">
-                    <div className="flex flex-wrap gap-2 text-gray-800 font-medium">
-                      {o.items?.map((it: any) => (
-                        <span key={it.id} className="bg-white/80 px-2 py-0.5 rounded border border-gray-200">
-                          {it.quantity}× {it.productName} {it.variantName ? `(${it.variantName})` : ""}
-                        </span>
-                      ))}
-                    </div>
-                    {o.boxMessage && (
-                      <p className="text-[11px] text-[#FF4F8B] font-semibold pt-1">
-                        💌 Message on Box: &ldquo;{o.boxMessage}&rdquo;
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Footer total and link */}
-                  <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-50">
-                    <span className="text-gray-400 text-[10px]">
-                      Created: {new Date(o.createdAt).toLocaleString("en-IN")}
-                    </span>
-                    <span className="font-extrabold text-sm text-[#3B1F14]">
-                      Total: ₹{o.total}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+    <div className="p-8 text-center text-xs text-gray-500">Loading orders...</div>
+  ) : orders.length === 0 ? (
+    <div className="bg-white rounded-2xl p-8 text-center text-xs text-gray-500 border border-[#3B1F14]/10">
+      No orders found matching the filter.
+    </div>
+  ) : (
+    <OrderTable orders={orders} onStatusChange={handleUpdateOrderStatus} />
+  )}
         </div>
       )}
 
